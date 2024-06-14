@@ -12,7 +12,7 @@ export async function sendVerificationEmail(
       from: "Acme <onboarding@resend.dev>",
       to: email,
       subject: "Mystery Message Verification Code",
-      react: EmailVerification({ username: username, otp: verificationCode }),
+      react: EmailVerification({ username, otp: verificationCode }),
     });
 
     return { success: true, message: "Verification email sent successfully" };
