@@ -15,6 +15,8 @@ export async function GET(request: Request) {
     const queryParam = {
       username: searchParams.get("username"),
     };
+
+    console.log(queryParam);
     // validate with zod
     const result = usernameQuerySchema.safeParse(queryParam);
     console.log(result);
@@ -51,7 +53,7 @@ export async function GET(request: Request) {
     return Response.json(
       {
         success: false,
-        message: "Error checking username",
+        message: "Error checking username" + error,
       },
       { status: 500 }
     );
