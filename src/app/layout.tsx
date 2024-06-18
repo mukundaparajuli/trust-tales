@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../globals.css";
+import "./globals.css";
 import AuthProvider from "@/contexts/Auth-Provider";
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,8 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Navbar />
-      <body className={inter.className}>{children}</body>
+      <AuthProvider>
+        {/* <Navbar /> */}
+        <body className={inter.className}>{children}</body>
+        <Toaster />
+      </AuthProvider>
     </html>
   );
 }
