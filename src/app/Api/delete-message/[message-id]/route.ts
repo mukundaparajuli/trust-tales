@@ -1,5 +1,5 @@
 import { User } from "next-auth";
-import { auth } from "../auth/[...nextauth]/options";
+import { auth } from "../../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnection";
 import mongoose from "mongoose";
 import userModel from "@/models/user";
