@@ -1,14 +1,16 @@
 import dbConnect from "@/lib/dbConnection";
 import userModel from "@/models/user";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   await dbConnect();
   try {
     const { username, code } = await request.json();
 
     const decodedUsername = decodeURIComponent(username);
+    console.log(username, decodedUsername);
 
-    const user = await userModel.findOne({ username: decodedUsername });
+    const user = await userModel.findOne({ username });
+    console.log(user);
     if (!user) {
       return Response.json({
         success: false,
@@ -17,14 +19,14 @@ export async function GET(request: Request) {
     }
     const isCodeValid = user.verifyCode === code;
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-
+    console.log(isCodeValid, isCodeNotExpired);
     if (isCodeValid && isCodeNotExpired) {
       user.isVerified = true;
       user.save();
 
       return Response.json({
         success: true,
-        message: "message verified successfully",
+        message: "code verified successfully",
       });
     } else if (isCodeNotExpired) {
       return Response.json({

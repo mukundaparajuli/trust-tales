@@ -26,29 +26,29 @@ const VerifyOTP = () => {
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
   });
-  console.log(params);
+  console.log(params.username);
 
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
     try {
-      const response = await axios.post("/api/verify-code/", {
+      console.log(data.code);
+      const response = await axios.post("/api/verify-code", {
         username: params.username,
         code: data.code,
       });
-      console.log(params.username);
-
       toast({
         title: "Success",
         description: response.data.message,
       });
-      router.replace("sign-in");
+      router.replace("/sign-in");
     } catch (error) {
-      console.error("Error during sign-up:", error);
+      console.log("Error during sign-up:", error);
 
       const axiosError = error as AxiosError<ApiResponse>;
 
       // Default error message
-      let errorMessage = axiosError.response?.data.message;
-      ("There was a problem with your sign-up. Please try again.");
+      let errorMessage =
+        axiosError.response?.data.message ||
+        "There was a problem with your sign-up. Please try again.";
 
       toast({
         title: "Verification Failed",
