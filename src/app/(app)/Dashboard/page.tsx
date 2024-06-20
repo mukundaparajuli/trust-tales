@@ -87,7 +87,7 @@ const Dashboard = () => {
     if (!session || !session.user) return;
     fetchMessages();
     fetchAcceptMessages();
-  }, [fetchAcceptMessages, fetchMessages, session]);
+  }, []);
 
   const handleSwitchChange = async () => {
     try {
@@ -110,7 +110,8 @@ const Dashboard = () => {
     }
   };
 
-  const { username } = session?.user as User;
+  const userInfo = session?.user as User;
+  let username = userInfo?.username;
   const baseUrl = `${window.location.protocol}/${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
