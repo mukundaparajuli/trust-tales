@@ -33,12 +33,13 @@ export async function POST(request: Request) {
     user.messages.push(newMessage as Message);
     await user.save();
 
+    console.log(user);
     return Response.json(
       {
-        success: false,
+        success: true,
         message: "Messsage sent successfully",
       },
-      { status: 403 }
+      { status: 201 }
     );
   } catch (error) {
     console.log("Unexpected Error Occured: ", error);

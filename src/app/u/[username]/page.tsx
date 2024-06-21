@@ -36,6 +36,8 @@ const MessageComponent = () => {
   const handleSubmit = async (data: z.infer<typeof messageSchema>) => {
     setIsSubmitting(true);
     try {
+      console.log(data.content);
+      console.log(username);
       const response = await axios.post<ApiResponse>(`/api/send-messages/`, {
         username: username,
         content: data.content,
@@ -70,7 +72,7 @@ const MessageComponent = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel htmlFor="content">
-                  Send anonymous message to {username}
+                  Send anonymous message to @{username}
                 </FormLabel>
                 <FormControl>
                   <Textarea
