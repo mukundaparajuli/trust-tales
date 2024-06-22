@@ -64,7 +64,7 @@ const userSchema: Schema<User> = new Schema({
   isAcceptingMesssages: {
     type: Boolean,
     required: true,
-    default: true,
+    // default: true,
   },
   messages: [messageSchema],
 });
