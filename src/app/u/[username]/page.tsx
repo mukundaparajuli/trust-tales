@@ -11,7 +11,7 @@ import { messageSchema } from "@/schema/messageSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ApiResponse } from "../../../../types/ApiResponse";
@@ -34,14 +34,8 @@ const MessageComponent = () => {
       content: "",
     },
   });
-  const checkIfUserAcceptingMessages = async () => {
-    try {
-      const response = await axios.get(`/api/accept-message`);
-      console.log("IS user accepting messages:", response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
+
   const generateMessages = async () => {
     setIsLoadingSuggestions(true);
     setSuggestedMessages([]); // Clear the current suggested messages
@@ -61,13 +55,13 @@ const MessageComponent = () => {
 
   const handleSubmit = async (data: z.infer<typeof messageSchema>) => {
     setIsSubmitting(true);
-
-    await checkIfUserAcceptingMessages();
+    console.log("trying to submit");
     try {
       const response = await axios.post<ApiResponse>(`/api/send-messages/`, {
         username: username,
         content: data.content,
       });
+      console.log(response.data);
       toast({
         title: "Success",
         description: response.data.message,

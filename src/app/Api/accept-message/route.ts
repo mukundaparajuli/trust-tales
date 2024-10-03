@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
   const userId = user._id;
   const { acceptMessages } = await request.json();
-  console.log("AcceptMessages: ", acceptMessages);
+  console.log("AcceptMessages: backend  ", acceptMessages);
   try {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
     return Response.json(
       {
         success: true,
-        isAcceptingMessages: foundUser.isAcceptingMesssages,
+        isAcceptingMessages: foundUser.isAcceptingMessages,
       },
       { status: 200 }
     );

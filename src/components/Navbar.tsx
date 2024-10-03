@@ -7,7 +7,7 @@ import { User } from "next-auth";
 const Navbar = () => {
   const { data: session } = useSession();
 
-  const user: User = session?.user;
+  const user: User = session?.user as User;
   return (
     <div className="p-4 md:p-6 shadow-md bg-gray-900 text-white">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">

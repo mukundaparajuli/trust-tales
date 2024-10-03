@@ -28,6 +28,8 @@ export async function POST(request: Request) {
         success: true,
         message: "code verified successfully",
       });
+
+      
     } else if (isCodeNotExpired) {
       return Response.json({
         success: false,
