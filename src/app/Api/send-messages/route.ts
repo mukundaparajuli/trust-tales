@@ -17,7 +17,14 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-    console.log(user);
+
+
+
+
+
+
+
+
     //   user accepting the messages or not
     console.log("user accepting messages status: ", user.isAcceptingMessages)
     if (!user.isAcceptingMessages) {

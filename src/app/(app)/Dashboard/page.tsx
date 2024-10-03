@@ -15,11 +15,17 @@ import { useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { acceptMessageSchema } from "@/schema/acceptMessageSchema";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { questionSchema } from "@/schema/questionSchema";
+import { z } from "zod";
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
+  const [url, setUrl] = useState<null | String>(null);
+  const [question, setQuestion] = useState<String>("");
 
   const { toast } = useToast();
 
@@ -29,12 +35,16 @@ function UserDashboard() {
 
   const { data: session } = useSession();
 
-  const form = useForm({
+  const formAcceptMessages = useForm({
     resolver: zodResolver(acceptMessageSchema),
     defaultValues: { acceptMessages: false },
   });
+  const formQuestions = useForm({
+    resolver: zodResolver(acceptMessageSchema),
+    defaultValues: { question: "" },
+  });
 
-  const { register, watch, setValue } = form;
+  const { register, watch, setValue } = formAcceptMessages;
   const acceptMessages = watch("acceptMessages");
 
   const fetchAcceptMessages = useCallback(async () => {
@@ -42,7 +52,6 @@ function UserDashboard() {
     try {
       const response = await axios.get("/api/accept-message");
       setValue("acceptMessages", response.data?.isAcceptingMessages);
-      console.log("45th line:", response.data.isAcceptingMessages);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -132,6 +141,36 @@ function UserDashboard() {
     });
   };
 
+
+
+
+
+  // handle link generation
+  const handleGenerateLink = async (data: z.infer<typeof questionSchema>) => {
+    console.log("Submitting question: ", data.question); // Log the submitted question
+    try {
+      const response = await axios.post<ApiResponse>(`/api/generate-question-uuid/`, {
+        question: data.question,
+      });
+      console.log("Response data: ", response.data); // Log response data
+      toast({
+        title: "Success",
+        description: response.data.message,
+      });
+      const uuidLink = response.data; // Store the generated UUID link
+      console.log("Generated UUID Link: ", uuidLink); // Log the UUID link
+      formQuestions.reset(); // Reset the form after submission
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      console.error("Error during question submission: ", axiosError); // Log error details
+      toast({
+        title: "Error",
+        description: axiosError.response?.data.message || "Error while generating the link",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
     <>
       <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
@@ -153,7 +192,7 @@ function UserDashboard() {
         <div className="mb-4">
           <Switch
             {...register("acceptMessages")}
-            checked={!!acceptMessages}  // Boolean value
+            checked={!!acceptMessages}
             onCheckedChange={handleSwitchChange}
             disabled={isSwitchLoading}
           />
@@ -162,7 +201,6 @@ function UserDashboard() {
           </span>
         </div>
         <Separator />
-
         <Button
           className="mt-4"
           variant="outline"
@@ -190,9 +228,45 @@ function UserDashboard() {
             <p>No messages to display.</p>
           )}
         </div>
-      </div>
+        <div>
+          {/* Create a question and generate uuid for the question along with the user */}
+          <Separator />
+          <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
+            <h1 className="font-bold text-4xl mb-10 text-center">
+              Your Question Here..
+            </h1>
+            <div className="my-8">
+              <Form {...formQuestions}>
+                <form onSubmit={formQuestions.handleSubmit(handleGenerateLink)} className="space-y-8">
+                  <FormField
+                    control={formQuestions.control}
+                    name="question"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Question</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Type your message here."
+                            className="resize-none border-black border-2 w-full"
+                            {...field}
+                            onChange={(e) => {
+                              setQuestion(e.target.value); // Update your local question state (optional)
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit">Submit</Button>
+                </form>
+              </Form>
+            </div>
+            <Separator />
+            <div className="mt-6">
+            </div>
+          </div></div>
+      </div >
     </>
   );
 }
-
 export default UserDashboard;
