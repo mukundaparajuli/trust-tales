@@ -32,7 +32,7 @@ const questionSchema: Schema<Question> = new Schema({
 
 
 const questionModel =
-    (mongoose.models.Message as mongoose.Model<Question>) ||
-    mongoose.model<Question>("Message", questionSchema);
+    (mongoose.models.Question as mongoose.Model<Question>) ||
+    mongoose.model<Question>("Question", questionSchema);
 
 export default questionModel;

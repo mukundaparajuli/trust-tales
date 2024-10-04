@@ -56,7 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token._id = user._id?.toString();
         token.isVerified = user.isVerified;
-        token.isAcceptingMesssages = user.isAcceptingMessages;
+        token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
       }
       return token;

@@ -34,16 +34,21 @@ export async function POST(req: Request, res: Response) {
         // Generate a UUID for the question
         const questionUUID = uuidv4();
 
+        console.log("question uuid: ", questionUUID);
+
         // Create a new question document
         const newQuestion: Question = new questionModel({
             question: question,
             uuid: questionUUID,
-            user: session.user.id,
+            user: session.user._id,
         });
+
+        console.log("new question is: ", newQuestion);
 
         // Save the question to the database
         await newQuestion.save();
 
+        console.log("new question has been saved!");
 
         return Response.json(
             {
