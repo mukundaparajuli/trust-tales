@@ -21,7 +21,7 @@ import { questionSchema } from "@/schema/questionSchema";
 import { string, z } from "zod";
 
 function UserDashboard() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [questionAnswerArray, setQuestionAnswerArray] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
   const [uuidLink, setUuidLink] = useState<null | string>(null);
@@ -46,9 +46,9 @@ function UserDashboard() {
 
   // delete message
 
-  const handleDeleteMessage = (messageId: string) => {
-    setMessages(messages.filter((message) => message._id !== messageId));
-  };
+  // const handleDeleteMessage = (messageId: string) => {
+  //   setMessages(messages.filter((message) => message._id !== messageId));
+  // };
 
 
 
@@ -106,7 +106,9 @@ function UserDashboard() {
       setIsLoading(true);
       try {
         const response = await axios.get<ApiResponse>("/api/get-message");
-        setMessages(response.data.messages || []);
+        setQuestionAnswerArray(response.data.questions);
+        console.log(questionAnswerArray);
+
         if (refresh) {
           toast({
             title: "Refreshed Messages",
@@ -239,7 +241,7 @@ function UserDashboard() {
           <RefreshCcw className="h-4 w-4" />
         )}
       </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
           messages.map((message) => (
             <MessageCard
@@ -251,7 +253,7 @@ function UserDashboard() {
         ) : (
           <p>No messages to display.</p>
         )}
-      </div>
+      </div> */}
 
       <Separator />
       <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
@@ -283,6 +285,70 @@ function UserDashboard() {
         </div>
         <Separator />
       </div>
+
+
+
+
+
+
+
+
+
+
+      {/* show all the questions and messages */}
+      <div>
+        {questionAnswerArray.map((item) => (
+          <div key={item._id} className="mb-4">
+            <div className="font-bold text-lg mb-2">
+              {/* Display the question */}
+              {item.question}
+            </div>
+
+            {/* Check if there are any messages */}
+            {item.messages.length > 0 ? (
+              <div className="ml-4">
+                {item.messages.map((message) => (
+                  <div key={message._id} className="bg-gray-100 p-2 rounded mb-2">
+                    {/* Display the message content */}
+                    <p>{message.content}</p>
+                    <span className="text-xs text-gray-500">
+                      {new Date(message.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="ml-4 text-gray-500">No messages available</div>
+            )}
+          </div>
+        ))}
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
   );
 }

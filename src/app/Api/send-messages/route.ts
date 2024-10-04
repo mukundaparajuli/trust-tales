@@ -1,18 +1,18 @@
 import userModel from "@/models/user";
 import dbConnect from "@/lib/dbConnection";
-import { Message } from "@/models/user";
-import { auth } from "../auth/[...nextauth]/options";
+import questionModel, { Message } from "@/models/question";
 
 export async function POST(request: Request) {
   await dbConnect();
   try {
 
 
-    const { userId, content } = await request.json();
+    const { userId, content, questionId } = await request.json();
     console.log(userId);
     console.log("user vettiyo");
     const user = await userModel.findById(userId);
-    if (!user) {
+    const question = await questionModel.findOne({ user: userId, _id: questionId });
+    if (!user || !question) {
       return Response.json(
         {
           success: false,
@@ -21,13 +21,6 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
-
-
-
-
-
-
-
 
     //   user accepting the messages or not
     console.log("user accepting messages status: ", user.isAcceptingMessages)
@@ -42,10 +35,11 @@ export async function POST(request: Request) {
     }
 
     const newMessage = { content, createdAt: new Date() };
-    user.messages.push(newMessage as Message);
-    await user.save();
+    console.log(newMessage);
+    question.messages.push(newMessage as Message);
+    await question.save();
 
-    console.log(user);
+    console.log(question);
     return Response.json(
       {
         success: true,

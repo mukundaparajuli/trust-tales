@@ -29,6 +29,8 @@ const MessageComponent = () => {
   const { uuidLink } = params;
   const [question, setQuestion] = useState<null | string>()
   const [userId, setUserId] = useState(null);
+  const [questionId, setQuestionId] = useState(null);
+
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -69,10 +71,13 @@ const MessageComponent = () => {
         uuid: uuidLink
       });
       console.log(response.data);
-      const question = response.data.question.question;
-      setQuestion(question);
+      const question = response.data.question;
+      setQuestion(question.question);
       const userKoId = response.data.question.user;
       setUserId(userKoId);
+
+      setQuestionId(question._id);
+      console.log("QUESTION KO ID:", question._id);
       console.log("user ko id: ", userKoId)
 
     }
@@ -97,12 +102,25 @@ const MessageComponent = () => {
       setIsSubmitting(false);
       return;
     }
+    if (!questionId) {
+      toast({
+        title: "Error",
+        description: "Question ID is not available. Please try again.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    console.log("user ko id aaisakyo aba fetch garne bela...")
 
     try {
+      console.log("fetching...")
       const response = await axios.post<ApiResponse>(`/api/send-messages/`, {
         userId: userId,
         content: data.content,
+        questionId: questionId,
       });
+      console.log("fetched...")
       console.log(response.data);
       toast({
         title: "Success",
