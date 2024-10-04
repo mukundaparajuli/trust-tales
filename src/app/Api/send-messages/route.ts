@@ -6,8 +6,12 @@ import { auth } from "../auth/[...nextauth]/options";
 export async function POST(request: Request) {
   await dbConnect();
   try {
-    const { username, content } = await request.json();
-    const user = await userModel.findOne({ username });
+
+
+    const { userId, content } = await request.json();
+    console.log(userId);
+    console.log("user vettiyo");
+    const user = await userModel.findById(userId);
     if (!user) {
       return Response.json(
         {

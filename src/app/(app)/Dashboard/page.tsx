@@ -18,34 +18,72 @@ import { acceptMessageSchema } from "@/schema/acceptMessageSchema";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { questionSchema } from "@/schema/questionSchema";
-import { z } from "zod";
+import { string, z } from "zod";
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
+  const [uuidLink, setUuidLink] = useState<null | string>(null);
+
 
   const { toast } = useToast();
+
+
+
+
+  const { data: session } = useSession();
+
+
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const profileUrl = `${baseUrl}/u/${uuidLink}`;
+
+
+
+
+
+
+
+  // delete message
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter((message) => message._id !== messageId));
   };
 
-  const { data: session } = useSession();
+
+
+
+
+
+  //forms
 
   const formAcceptMessages = useForm({
     resolver: zodResolver(acceptMessageSchema),
     defaultValues: { acceptMessages: false },
   });
+
   const formQuestions = useForm({
-    resolver: zodResolver(questionSchema),  // Use questionSchema here
+    resolver: zodResolver(questionSchema),
     defaultValues: { question: "" },
   });
 
+
+
+
+
+
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(profileUrl);
+    toast({
+      title: "URL Copied!",
+      description: "Profile URL has been copied to clipboard.",
+    });
+  };
   const { register, watch, setValue } = formAcceptMessages;
   const acceptMessages = watch("acceptMessages");
 
-  const fetchAcceptMessages = useCallback(async () => {
+  const fetchAcceptMessages = async () => {
     setIsSwitchLoading(true);
     try {
       const response = await axios.get("/api/accept-message");
@@ -61,9 +99,9 @@ function UserDashboard() {
     } finally {
       setIsSwitchLoading(false);
     }
-  }, [setValue, toast]);
+  };
 
-  const fetchMessages = useCallback(
+  const fetchMessages =
     async (refresh: boolean = false) => {
       setIsLoading(true);
       try {
@@ -86,16 +124,13 @@ function UserDashboard() {
       } finally {
         setIsLoading(false);
       }
-    },
-    [toast]
-  );
+    };
 
-  useEffect(() => {
-    if (!session || !session.user) return;
 
-    fetchMessages();
-    fetchAcceptMessages();
-  }, [session, fetchAcceptMessages, fetchMessages]);
+
+
+
+  // handle switch change
 
   const handleSwitchChange = async () => {
     try {
@@ -118,22 +153,10 @@ function UserDashboard() {
     }
   };
 
-  if (!session || !session.user) {
-    return <div></div>;
-  }
 
-  const { username } = session.user as User;
 
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileUrl);
-    toast({
-      title: "URL Copied!",
-      description: "Profile URL has been copied to clipboard.",
-    });
-  };
+  // handle generate link
 
   const handleGenerateLink = async (data: z.infer<typeof questionSchema>) => {
     console.log("into it", data.question);
@@ -141,12 +164,19 @@ function UserDashboard() {
       const response = await axios.post<ApiResponse>(`/api/generate-question-uuid/`, {
         question: data.question,
       });
-      console.log(response);
+      console.log(response.data);
+      const { question } = response.data;
+      console.log(question.uuid)
+
+      setUuidLink(question.uuid)
+
       toast({
         title: "Success",
         description: response.data.message,
       });
       formQuestions.reset();
+
+
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -157,13 +187,25 @@ function UserDashboard() {
     }
   };
 
+
+
+  useEffect(() => {
+    if (!session || !session.user) return;
+
+    fetchMessages();
+    fetchAcceptMessages();
+  }, [session]);
+
+
+
+
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
         <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>
-        <div className="flex items-center">
+        {uuidLink && <div className="flex items-center">
           <input
             type="text"
             value={profileUrl}
@@ -171,7 +213,7 @@ function UserDashboard() {
             className="input input-bordered w-full p-2 mr-2"
           />
           <Button onClick={copyToClipboard}>Copy</Button>
-        </div>
+        </div>}
       </div>
 
       <div className="mb-4">

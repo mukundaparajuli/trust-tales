@@ -40,10 +40,10 @@ export async function POST(req: Request, res: Response) {
         const newQuestion: Question = new questionModel({
             question: question,
             uuid: questionUUID,
-            user: session.user._id,
+            user: user,
         });
 
-        console.log("new question is: ", newQuestion);
+        console.log("new question with user is: ", newQuestion);
 
         // Save the question to the database
         await newQuestion.save();

@@ -26,7 +26,9 @@ const MessageComponent = () => {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { toast } = useToast();
   const params = useParams();
-  const { username } = params;
+  const { uuidLink } = params;
+  const [question, setQuestion] = useState<null | string>()
+  const [userId, setUserId] = useState(null);
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -38,7 +40,7 @@ const MessageComponent = () => {
 
   const generateMessages = async () => {
     setIsLoadingSuggestions(true);
-    setSuggestedMessages([]); // Clear the current suggested messages
+    setSuggestedMessages([]);
     try {
       const response = await axios.get("/api/suggest-messages/");
       setSuggestedMessages(response.data.messageSuggestion);
@@ -53,12 +55,52 @@ const MessageComponent = () => {
     }
   };
 
+
+
+
+
+
+
+  // handle get question info
+  const handleGetQuestionInfo = async () => {
+    console.log("getting the question info...");
+    try {
+      const response = await axios.post('/api/get-question-from-uuid', {
+        uuid: uuidLink
+      });
+      console.log(response.data);
+      const question = response.data.question.question;
+      setQuestion(question);
+      const userKoId = response.data.question.user;
+      setUserId(userKoId);
+      console.log("user ko id: ", userKoId)
+
+    }
+    catch (error) {
+      console.log("Error occured while fetching the question information : ", error);
+    }
+  }
+
+
+
+  // handle submit
+
   const handleSubmit = async (data: z.infer<typeof messageSchema>) => {
     setIsSubmitting(true);
     console.log("trying to submit");
+
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User ID is not available. Please try again.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await axios.post<ApiResponse>(`/api/send-messages/`, {
-        username: username,
+        userId: userId,
         content: data.content,
       });
       console.log(response.data);
@@ -84,10 +126,31 @@ const MessageComponent = () => {
     form.setValue("content", message);
   };
 
+
+
+  useEffect(() => {
+    handleGetQuestionInfo();
+  }, [])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
       <h1 className="font-bold text-4xl mb-10 text-center">
-        Public Profile Link
+        {question}
       </h1>
       <div className="my-8">
         <Form {...form}>
@@ -101,7 +164,7 @@ const MessageComponent = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel htmlFor="content">
-                    Send anonymous message to @{username}
+                    {/* Send anonymous message to @{username} */}
                   </FormLabel>
                   <FormControl>
                     <Textarea
