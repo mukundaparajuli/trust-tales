@@ -297,7 +297,7 @@ function UserDashboard() {
 
       {/* show all the questions and messages */}
       <div>
-        {questionAnswerArray.map((item) => (
+        {questionAnswerArray && questionAnswerArray.map((item) => (
           <div key={item._id} className="mb-4">
             <div className="font-bold text-lg mb-2">
               {/* Display the question */}

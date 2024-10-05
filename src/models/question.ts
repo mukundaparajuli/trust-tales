@@ -4,11 +4,21 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface Message extends Document {
     content: string;
+    name: string;
+    photo: string;
     createdAt: Date;
 }
 
 const messageSchema: Schema<Message> = new Schema({
     content: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    photo: {
         type: String,
         required: true,
     },

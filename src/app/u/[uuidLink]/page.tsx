@@ -19,6 +19,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { headers } from "next/headers";
 
 const MessageComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,18 +29,18 @@ const MessageComponent = () => {
   const { toast } = useToast();
   const params = useParams();
   const { uuidLink } = params;
-  const [question, setQuestion] = useState<null | string>()
+  const [question, setQuestion] = useState<null | string>();
   const [userId, setUserId] = useState(null);
   const [questionId, setQuestionId] = useState(null);
-
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
     defaultValues: {
       content: "",
+      name: "",
+      photo: undefined,
     },
   });
-
 
   const generateMessages = async () => {
     setIsLoadingSuggestions(true);
@@ -57,18 +59,11 @@ const MessageComponent = () => {
     }
   };
 
-
-
-
-
-
-
-  // handle get question info
   const handleGetQuestionInfo = async () => {
     console.log("getting the question info...");
     try {
-      const response = await axios.post('/api/get-question-from-uuid', {
-        uuid: uuidLink
+      const response = await axios.post("/api/get-question-from-uuid", {
+        uuid: uuidLink,
       });
       console.log(response.data);
       const question = response.data.question;
@@ -78,17 +73,11 @@ const MessageComponent = () => {
 
       setQuestionId(question._id);
       console.log("QUESTION KO ID:", question._id);
-      console.log("user ko id: ", userKoId)
-
+      console.log("user ko id: ", userKoId);
+    } catch (error) {
+      console.log("Error occurred while fetching the question information : ", error);
     }
-    catch (error) {
-      console.log("Error occured while fetching the question information : ", error);
-    }
-  }
-
-
-
-  // handle submit
+  };
 
   const handleSubmit = async (data: z.infer<typeof messageSchema>) => {
     setIsSubmitting(true);
@@ -111,16 +100,28 @@ const MessageComponent = () => {
       return;
     }
 
-    console.log("user ko id aaisakyo aba fetch garne bela...")
+    console.log("user ko id aaisakyo aba fetch garne bela...");
 
     try {
-      console.log("fetching...")
-      const response = await axios.post<ApiResponse>(`/api/send-messages/`, {
-        userId: userId,
-        content: data.content,
-        questionId: questionId,
-      });
-      console.log("fetched...")
+      console.log("fetching...");
+
+
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("content", data.content);
+      formData.append("name", data.name);
+      formData.append("photo", data.photo);
+      formData.append("questionId", questionId);
+
+      const response = await axios.post<ApiResponse>("/api/send-messages/", formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          }
+        });
+      console.log("photo xa hai eta:", data.photo);
+      console.log("photo xa hai eta:", data.photo);
+      console.log("fetched...");
       console.log(response.data);
       toast({
         title: "Success",
@@ -144,32 +145,13 @@ const MessageComponent = () => {
     form.setValue("content", message);
   };
 
-
-
   useEffect(() => {
     handleGetQuestionInfo();
-  }, [])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  }, []);
 
   return (
     <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
-      <h1 className="font-bold text-4xl mb-10 text-center">
-        {question}
-      </h1>
+      <h1 className="font-bold text-4xl mb-10 text-center">{question}</h1>
       <div className="my-8">
         <Form {...form}>
           <form
@@ -181,14 +163,44 @@ const MessageComponent = () => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="content">
-                    {/* Send anonymous message to @{username} */}
-                  </FormLabel>
+                  <FormLabel htmlFor="content">Message</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Type your message here."
                       className="resize-none border-black border-2 w-full"
                       {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="name">Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Full Name"
+                      {...field} // Spread the field props
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="photo"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="photo">Upload Photo</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => field.onChange(e.target.files?.[0])} // Handle file upload
                     />
                   </FormControl>
                 </FormItem>
