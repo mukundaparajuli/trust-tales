@@ -1,4 +1,4 @@
-
+'use client';
 import TempFour from "@/components/templates/TempFour"
 import TempOne from "@/components/templates/TempOne"
 import TempThree from "@/components/templates/TempThree"
