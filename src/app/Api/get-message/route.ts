@@ -66,9 +66,9 @@ export async function GET(request: Request) {
   try {
     // Fetch all questions for the authenticated user, including messages
     const userQuestions = await questionModel
-      .find({ user: userId })  // Query questions where the user field matches the authenticated user's ID
-      .select("question messages createdAt")  // You can choose the fields you need, such as question, messages, and createdAt
-      .exec();  // Execute the query
+      .find({ user: userId })
+      .select("question messages createdAt")
+      .exec();
 
     // If no questions are found
     if (!userQuestions || userQuestions.length === 0) {
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
     return Response.json(
       {
         success: true,
-        questions: userQuestions,  // Send back the questions array
+        questions: userQuestions,  // Send back the questions arra
       },
       { status: 200 }
     );

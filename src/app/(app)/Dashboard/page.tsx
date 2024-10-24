@@ -19,44 +19,22 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Textarea } from "@/components/ui/textarea";
 import { questionSchema } from "@/schema/questionSchema";
 import { string, z } from "zod";
+import { useRouter } from "next/navigation";
 
 function UserDashboard() {
   const [questionAnswerArray, setQuestionAnswerArray] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
   const [uuidLink, setUuidLink] = useState<null | string>(null);
-
+  const router = useRouter();
 
   const { toast } = useToast();
-
-
-
-
   const { data: session } = useSession();
-
 
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${uuidLink}`;
 
-
-
-
-
-
-
-  // delete message
-
-  // const handleDeleteMessage = (messageId: string) => {
-  //   setMessages(messages.filter((message) => message._id !== messageId));
-  // };
-
-
-
-
-
-
   //forms
-
   const formAcceptMessages = useForm({
     resolver: zodResolver(acceptMessageSchema),
     defaultValues: { acceptMessages: false },
@@ -67,12 +45,6 @@ function UserDashboard() {
     defaultValues: { question: "" },
   });
 
-
-
-
-
-
-
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);
     toast({
@@ -80,6 +52,7 @@ function UserDashboard() {
       description: "Profile URL has been copied to clipboard.",
     });
   };
+
   const { register, watch, setValue } = formAcceptMessages;
   const acceptMessages = watch("acceptMessages");
 
@@ -128,12 +101,7 @@ function UserDashboard() {
       }
     };
 
-
-
-
-
   // handle switch change
-
   const handleSwitchChange = async () => {
     try {
       const response = await axios.post<ApiResponse>("/api/accept-message", {
@@ -155,11 +123,7 @@ function UserDashboard() {
     }
   };
 
-
-
-
   // handle generate link
-
   const handleGenerateLink = async (data: z.infer<typeof questionSchema>) => {
     console.log("into it", data.question);
     try {
@@ -189,17 +153,12 @@ function UserDashboard() {
     }
   };
 
-
-
   useEffect(() => {
     if (!session || !session.user) return;
 
     fetchMessages();
     fetchAcceptMessages();
   }, [session]);
-
-
-
 
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
@@ -287,14 +246,6 @@ function UserDashboard() {
       </div>
 
 
-
-
-
-
-
-
-
-
       {/* show all the questions and messages */}
       <div>
         {questionAnswerArray && questionAnswerArray.map((item) => (
@@ -308,7 +259,7 @@ function UserDashboard() {
             {item.messages.length > 0 ? (
               <div className="ml-4">
                 {item.messages.map((message) => (
-                  <div key={message._id} className="bg-gray-100 p-2 rounded mb-2">
+                  <div key={message._id} className="bg-gray-100 p-2 rounded mb-2" onClick={() => router.push('/templates')}>
                     {/* Display the message content */}
                     <p>{message.content}</p>
                     <span className="text-xs text-gray-500">
@@ -323,33 +274,7 @@ function UserDashboard() {
           </div>
         ))}
       </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    </div>
+    </div >
   );
 }
 
