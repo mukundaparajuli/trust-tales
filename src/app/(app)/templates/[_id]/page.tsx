@@ -1,19 +1,36 @@
-'use client';
+'use client'
+
 import TempFour from "@/components/templates/TempFour"
 import TempOne from "@/components/templates/TempOne"
 import TempThree from "@/components/templates/TempThree"
 import TempTwo from "@/components/templates/TempTwo"
-import dbConnect from "@/lib/dbConnection";
-import { useParams } from "next/navigation";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 
-export default async function Page() {
+export default function Page({ params }: {
+    params: {
+        _id: string;
+    }
+}) {
 
-    const params = useParams();
-    console.log(params);
-    // const messages = async () => {
-    //     const response = await fetch(`/api/get-message/`)
-    // }
+    const [message, setMessage] = useState();
+    const { _id } = params;
+    console.log(_id);
+    const fetchMessage = async () => {
+        try {
+            const response = await axios.get(`/api/get-message/` + _id);
+            console.log(response.data);
+            setMessage(response.data.message)
+        } catch (error) {
+            console.error("Error fetching message:", error);
+            return null;
+        }
+
+    }
+    useEffect(() => {
+        fetchMessage();
+    })
 
     const prop = {
         name: 'Mukunda',

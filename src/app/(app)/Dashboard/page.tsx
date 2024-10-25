@@ -254,14 +254,15 @@ function UserDashboard() {
               {/* Display the question */}
               {item.question}
             </div>
+            <p>{item._id}</p>
 
             {/* Check if there are any messages */}
             {item.messages.length > 0 ? (
               <div className="ml-4">
                 {item.messages.map((message) => (
-                  <div key={message._id} className="bg-gray-100 p-2 rounded mb-2" onClick={() => router.push('/templates')}>
-                    {/* Display the message content */}
-                    <p>{message.content}</p>
+                  <div key={message._id} className="bg-gray-100 p-2 rounded mb-2" onClick={() => router.push(`/templates/${message._id}`)}>
+
+                    <p>{message._id}</p>
                     <span className="text-xs text-gray-500">
                       {new Date(message.createdAt).toLocaleString()}
                     </span>

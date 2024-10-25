@@ -1,44 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-
-
-export interface Message extends Document {
-    content: string;
-    name: string;
-    photo: string;
-    createdAt: Date;
-}
-
-const messageSchema: Schema<Message> = new Schema({
-    content: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    photo: {
-        type: String,
-        required: true,
-    },
-    createdAt: {
-        type: Date,
-        required: true,
-        default: Date.now(),
-    },
-});
-
-
+// Define Question interface
 export interface Question extends Document {
     question: string;
     createdAt: Date;
-    uuid: string,
+    uuid: string;
     user: mongoose.Schema.Types.ObjectId;
-    messages: [Message]
+    messages: mongoose.Schema.Types.ObjectId[]; // Reference to Message documents
 }
 
-
+// Question Schema
 const questionSchema: Schema<Question> = new Schema({
     question: {
         type: String,
@@ -57,12 +28,13 @@ const questionSchema: Schema<Question> = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }, messages: [messageSchema],
+    },
+    messages: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message'  // Reference to Message model
+    }]
 });
 
-
-const questionModel =
-    (mongoose.models.Question as mongoose.Model<Question>) ||
-    mongoose.model<Question>("Question", questionSchema);
+const questionModel = mongoose.models.Question || mongoose.model<Question>("Question", questionSchema);
 
 export default questionModel;

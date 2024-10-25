@@ -4,6 +4,7 @@ import questionModel, { Message } from "@/models/question";
 import { uploadToCloudinary } from "@/lib/cloudinary"
 import { writeFile } from "fs";
 import { join } from "path";
+import messageModel from "@/models/messages";
 
 
 export async function POST(request: Request) {
@@ -80,8 +81,25 @@ export async function POST(request: Request) {
     }
 
 
-    const newMessage: Message = { content, name, photo: photoUrl, createdAt: new Date() };
-    question.messages.push(newMessage);
+    // Create a new message document in the database
+    const newMessage = await messageModel.create({
+      content,
+      name,
+      photo: photoUrl,
+      createdAt: new Date()
+    });
+
+    // Embed the message data into the question's messages array
+    const messageToEmbed = {
+      _id: newMessage._id,   // Embed the same _id
+      content: newMessage.content,
+      name: newMessage.name,
+      photo: newMessage.photo,
+      createdAt: newMessage.createdAt
+    };
+
+    // Add the new message object to the question's messages array
+    question.messages.push(messageToEmbed);
     await question.save();
 
     return Response.json(

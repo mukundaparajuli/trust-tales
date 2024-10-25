@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { FaCopy, FaStar } from 'react-icons/fa';
@@ -23,7 +24,6 @@ const TempFour = (prop) => {
             onMouseLeave={() => setHovered(false)}
             style={{ position: "relative" }}
         >
-            {/* Copy Button */}
             {hovered && (
                 <button
                     onClick={handleCopy}
