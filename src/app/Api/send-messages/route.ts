@@ -1,6 +1,6 @@
 import userModel from "@/models/user";
 import dbConnect from "@/lib/dbConnection";
-import questionModel, { Message } from "@/models/question";
+import questionModel from "@/models/question";
 import { uploadToCloudinary } from "@/lib/cloudinary"
 import { writeFile } from "fs";
 import { join } from "path";
@@ -13,12 +13,14 @@ export async function POST(request: Request) {
 
   try {
     const formData = await request.formData();
-    console.log(formData);
+    console.log("formData=", formData);
     const userId = formData.get("userId");
-    const content = formData.get("content");
+    const message = formData.get("message");
     const name = formData.get("name");
+    const project = formData.get("project");
     const questionId = formData.get("questionId");
     const photo: File | null = formData.get("photo") as unknown as File;
+    const rating = formData.get("rating");
 
     console.log(photo);
     if (!photo) {
@@ -83,18 +85,22 @@ export async function POST(request: Request) {
 
     // Create a new message document in the database
     const newMessage = await messageModel.create({
-      content,
+      message,
       name,
+      project,
       photo: photoUrl,
+      rating,
       createdAt: new Date()
     });
 
     // Embed the message data into the question's messages array
     const messageToEmbed = {
       _id: newMessage._id,   // Embed the same _id
-      content: newMessage.content,
+      message: newMessage.message,
       name: newMessage.name,
       photo: newMessage.photo,
+      project: newMessage.project,
+      rating: newMessage.rating,
       createdAt: newMessage.createdAt
     };
 

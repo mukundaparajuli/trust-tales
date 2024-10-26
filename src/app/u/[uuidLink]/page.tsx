@@ -17,7 +17,7 @@ import { z } from "zod";
 import { ApiResponse } from "../../../../types/ApiResponse";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { headers } from "next/headers";
@@ -36,9 +36,11 @@ const MessageComponent = () => {
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
     defaultValues: {
-      content: "",
+      message: "",
       name: "",
+      project: "",
       photo: undefined,
+      rating: 0,
     },
   });
 
@@ -100,7 +102,7 @@ const MessageComponent = () => {
       return;
     }
 
-    console.log("user ko id aaisakyo aba fetch garne bela...");
+
 
     try {
       console.log("fetching...");
@@ -108,9 +110,11 @@ const MessageComponent = () => {
 
       const formData = new FormData();
       formData.append("userId", userId);
-      formData.append("content", data.content);
+      formData.append("message", data.message);
       formData.append("name", data.name);
+      formData.append("project", data.project);
       formData.append("photo", data.photo);
+      formData.append("rating", data.rating);
       formData.append("questionId", questionId);
 
       const response = await axios.post<ApiResponse>("/api/send-messages/", formData,
@@ -119,8 +123,7 @@ const MessageComponent = () => {
             "Content-Type": "multipart/form-data",
           }
         });
-      console.log("photo xa hai eta:", data.photo);
-      console.log("photo xa hai eta:", data.photo);
+
       console.log("fetched...");
       console.log(response.data);
       toast({
@@ -142,7 +145,7 @@ const MessageComponent = () => {
 
   // Handler to set the clicked suggested message into the textarea
   const handleSuggestedMessageClick = (message: string) => {
-    form.setValue("content", message);
+    form.setValue("message", message);
   };
 
   useEffect(() => {
@@ -159,11 +162,11 @@ const MessageComponent = () => {
             className="space-y-6 w-full"
           >
             <FormField
-              name="content"
+              name="message"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel htmlFor="content">Message</FormLabel>
+                  <FormLabel htmlFor="message">Message</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Type your message here."
@@ -191,6 +194,22 @@ const MessageComponent = () => {
               )}
             />
             <FormField
+              name="project"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="project">Project</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Project Name"
+                      {...field} // Spread the field props
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
               name="photo"
               control={form.control}
               render={({ field }) => (
@@ -202,6 +221,26 @@ const MessageComponent = () => {
                       accept="image/*"
                       onChange={(e) => field.onChange(e.target.files?.[0])} // Handle file upload
                     />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="rating"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="rating">Rating</FormLabel>
+                  <FormControl>
+                    <div className="flex space-x-2">
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <Star
+                          key={value}
+                          className={`cursor-pointer ${field.value >= value ? "text-yellow-500" : "text-gray-300"}`}
+                          onClick={() => field.onChange(value)}
+                        />
+                      ))}
+                    </div>
                   </FormControl>
                 </FormItem>
               )}

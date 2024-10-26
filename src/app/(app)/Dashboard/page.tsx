@@ -80,7 +80,7 @@ function UserDashboard() {
       try {
         const response = await axios.get<ApiResponse>("/api/get-message");
         setQuestionAnswerArray(response.data.questions);
-        console.log(questionAnswerArray);
+        console.log("questionAnswerArray=", questionAnswerArray);
 
         if (refresh) {
           toast({
@@ -152,6 +152,7 @@ function UserDashboard() {
       });
     }
   };
+  { console.log(questionAnswerArray) }
 
   useEffect(() => {
     if (!session || !session.user) return;
@@ -257,12 +258,12 @@ function UserDashboard() {
             <p>{item._id}</p>
 
             {/* Check if there are any messages */}
-            {item.messages.length > 0 ? (
+            {item && item.messages && item.messages.length > 0 ? (
               <div className="ml-4">
                 {item.messages.map((message) => (
                   <div key={message._id} className="bg-gray-100 p-2 rounded mb-2" onClick={() => router.push(`/templates/${message._id}`)}>
-
-                    <p>{message._id}</p>
+                    {/* Display message text */}
+                    <p>{message.message}</p>
                     <span className="text-xs text-gray-500">
                       {new Date(message.createdAt).toLocaleString()}
                     </span>
