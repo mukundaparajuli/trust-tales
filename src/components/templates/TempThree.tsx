@@ -1,12 +1,19 @@
-"use client"
+"use client";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { FaCopy, FaStar } from 'react-icons/fa';
+import { FaCopy } from 'react-icons/fa';
 
-const TempThree = (prop) => {
-    const { name, message, project, image, rating } = prop;
-    const [hovered, setHovered] = useState(false); // For hover state
-    const svgRef = useRef<SVGSVGElement>(null); // Ref for SVG element
+interface TempThreeProps {
+    name: string;
+    message: string;
+    project: string;
+    photo: string;
+    rating: number;
+}
+
+const TempThree: React.FC<TempThreeProps> = ({ name, message, project, photo, rating }) => {
+    const [hovered, setHovered] = useState(false);
+    const svgRef = useRef<SVGSVGElement>(null);
 
     const handleCopy = () => {
         if (svgRef.current) {
@@ -49,6 +56,9 @@ const TempThree = (prop) => {
                     <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#F3F4F6" strokeWidth="1" />
                     </pattern>
+                    <filter id="shadow3" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.1" />
+                    </filter>
                 </defs>
 
                 <rect width="280" height="380" x="10" y="10" rx="0" fill="white" filter="url(#shadow3)" />
@@ -67,18 +77,12 @@ const TempThree = (prop) => {
 
                 {/* Image */}
                 <foreignObject x="110" y="220" width="80" height="80">
-                    <Image src={image} alt="Image" width={80} height={80} />
+                    <Image src={photo} alt="Profile Picture" width={80} height={80} />
                 </foreignObject>
 
+                {/* Name and Project Text */}
                 <text x="150" y="330" fontFamily="Arial" fontSize="16" fill="#374151" textAnchor="middle" fontWeight="bold">{name}</text>
                 <text x="150" y="350" fontFamily="Arial" fontSize="12" fill="#6B7280" textAnchor="middle">{project}</text>
-
-                {/* Filters for Shadows */}
-                <defs>
-                    <filter id="shadow3" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.1" />
-                    </filter>
-                </defs>
             </svg>
         </div>
     );

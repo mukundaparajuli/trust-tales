@@ -1,6 +1,5 @@
 "use client"
 import React, { useState, useRef } from "react";
-import Image from "next/image";
 import { FaCopy } from "react-icons/fa";
 
 interface TempOneProps {
@@ -12,7 +11,6 @@ interface TempOneProps {
 }
 
 const TempOne: React.FC<TempOneProps> = ({ name, message, project, photo }) => {
-    console.log({ name, message, project, photo })
     const [hovered, setHovered] = useState(false);
     const svgRef = useRef<SVGSVGElement>(null);
 
@@ -63,9 +61,6 @@ const TempOne: React.FC<TempOneProps> = ({ name, message, project, photo }) => {
                         <stop offset="0%" style={{ stopColor: '#6366F1', stopOpacity: 1 }} />
                         <stop offset="100%" style={{ stopColor: '#8B5CF6', stopOpacity: 1 }} />
                     </linearGradient>
-                    <clipPath id="circleClip1">
-                        <circle cx="150" cy="260" r="40" />
-                    </clipPath>
                 </defs>
 
                 {/* First Card */}
@@ -83,9 +78,18 @@ const TempOne: React.FC<TempOneProps> = ({ name, message, project, photo }) => {
                 </foreignObject>
 
                 {/* Avatar */}
-                <foreignObject x="110" y="220" width="80" height="80" clipPath="url(#circleClip1)">
-                    <Image src={photo} alt="Image" width={80} height={80} style={{ borderRadius: '50%' }} />
-                </foreignObject>
+                <circle cx="150" cy="260" r="40" fill="white" stroke="#6366F1" strokeWidth="3" />
+                <image
+                    href={photo} // URL of the image
+                    x="110"
+                    y="220"
+                    width="80"
+                    height="80"
+                    style={{ borderRadius: '50%' }}
+                    clipPath="circle(50% at 50% 50%)"
+                />
+
+                {/* Name and Project */}
                 <text x="150" y="330" fontFamily="Arial" fontSize="16" fill="white" textAnchor="middle" fontWeight="bold">{name}</text>
                 <text x="150" y="350" fontFamily="Arial" fontSize="12" fill="white" textAnchor="middle">{project}</text>
             </svg>

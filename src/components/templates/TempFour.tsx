@@ -1,10 +1,9 @@
 "use client"
 import React, { useState, useRef } from "react";
-import Image from "next/image";
 import { FaCopy, FaStar } from 'react-icons/fa';
 
 const TempFour = (prop) => {
-    const { name, message, project, image, rating } = prop;
+    const { name, message, project, photo, rating } = prop;
     const stars = Array(5).fill(0); // Create an array for star rating
     const [hovered, setHovered] = useState(false); // For hover state
     const svgRef = useRef<SVGSVGElement>(null); // Ref for SVG element
@@ -71,11 +70,15 @@ const TempFour = (prop) => {
 
                 {/* Avatar */}
                 <circle cx="150" cy="260" r="40" fill="white" stroke="#0EA5E9" strokeWidth="3" />
-                <foreignObject x="120" y="230" width="60" height="60">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                        <Image src={image} alt="Image" width={60} height={60} style={{ borderRadius: '50%' }} />
-                    </div>
-                </foreignObject>
+                <image
+                    href={photo} // URL of the image
+                    x="120"
+                    y="230"
+                    width="60"
+                    height="60"
+                    style={{ borderRadius: '50%' }}
+                    clipPath="circle(50% at 50% 50%)"
+                />
 
                 {/* Name and Project */}
                 <text x="150" y="330" fontFamily="Arial" fontSize="16" fill="#0EA5E9" textAnchor="middle" fontWeight="bold">{name}</text>

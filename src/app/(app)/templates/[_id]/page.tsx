@@ -36,9 +36,9 @@ export default function Page({ params }: {
     return (
         <div className="flex m-0 p-0">
             {messages && <TempOne {...messages} />}
-            {/* <TempTwo {...messages} />
+            <TempTwo {...messages} />
             <TempThree {...messages} />
-            <TempFour {...messages} /> */}
+            <TempFour {...messages} />
 
         </div>
     )

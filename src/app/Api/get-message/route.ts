@@ -26,9 +26,9 @@ export async function GET(request: Request) {
     const userQuestions = await questionModel
       .find({ user: userId })
       .populate("messages")
-      .exec();
+    // .exec();
 
-    console.log(userQuestions[2].messages);
+    console.log(userQuestions);
 
     // If no questions are found
     if (!userQuestions || userQuestions.length === 0) {

@@ -7,11 +7,11 @@ interface TempTwoProps {
     name: string;
     message: string;
     project: string;
-    image: string;
+    photo: string;
     rating: number;
 }
 
-const TempTwo: React.FC<TempTwoProps> = ({ name, message, project, image, rating }) => {
+const TempTwo: React.FC<TempTwoProps> = ({ name, message, project, photo, rating }) => {
     const [hovered, setHovered] = useState(false);
     const svgRef = useRef<SVGSVGElement>(null);
 
@@ -68,7 +68,7 @@ const TempTwo: React.FC<TempTwoProps> = ({ name, message, project, image, rating
 
                 {/* Avatar */}
                 <foreignObject x="110" y="220" width="80" height="80" clipPath="url(#circleClip1)">
-                    <Image src={image} alt="Image" width={80} height={80} style={{ borderRadius: '50%' }} />
+                    <Image src={photo} alt="Image" width={80} height={80} style={{ borderRadius: '50%' }} />
                 </foreignObject>
 
                 <text x="150" y="330" fontFamily="Arial" fontSize="16" fill="#E5E7EB" textAnchor="middle" fontWeight="bold">{name}</text>
