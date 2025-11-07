@@ -21,6 +21,7 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@react-email/components": "^0.0.19",
     "@types/uuid": "^10.0.0",
+    "@vercel/analytics": "^1.5.0",
     "ai": "^3.1.36",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
