@@ -10,7 +10,19 @@ const usernameQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
-  await dbConnect();
+  try {
+    await dbConnect();
+  } catch (error) {
+    console.error("Database connection error:", error);
+    return Response.json(
+      {
+        success: false,
+        message: "Database connection failed",
+      },
+      { status: 503 }
+    );
+  }
+
   //   localhost:3000/api/cuu?username=mukunda?email=abc@abc.com
   try {
     const { searchParams } = new URL(request.url);
@@ -48,10 +60,11 @@ export async function GET(request: Request) {
       message: "Username is available",
     });
   } catch (error) {
+    console.error("Error checking username:", error);
     return Response.json(
       {
         success: false,
-        message: "Error checking username" + error,
+        message: "Error checking username",
       },
       { status: 500 }
     );

@@ -4,7 +4,16 @@ import userModel from "@/models/user";
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  await dbConnect();
+  try {
+    await dbConnect();
+  } catch (error) {
+    console.error("Database connection error:", error);
+    return Response.json({
+      success: false,
+      message: "Database connection failed",
+    }, { status: 503 });
+  }
+
   try {
     const { username, code } = await request.json();
 
@@ -21,7 +30,7 @@ export async function POST(request: Request) {
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
     if (isCodeValid && isCodeNotExpired) {
       user.isVerified = true;
-      user.save();
+      await user.save();
 
       return Response.json({
         success: true,
@@ -41,9 +50,10 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
+    console.error("Error verifying code:", error);
     return Response.json({
       success: false,
       message: "username verification failed",
-    });
+    }, { status: 500 });
   }
 }
