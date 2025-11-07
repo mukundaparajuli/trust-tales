@@ -79,11 +79,9 @@ export default function SignUpForm() {
 
       setIsSubmitting(false);
     } catch (error) {
-      console.error("Error during sign-up:", error);
 
       const axiosError = error as AxiosError<ApiResponse>;
 
-      // Default error message
       let errorMessage = axiosError.response?.data.message;
       ("There was a problem with your sign-up. Please try again.");
 
@@ -124,11 +122,10 @@ export default function SignUpForm() {
                   {isCheckingUsername && <Loader2 className="animate-spin" />}
                   {!isCheckingUsername && usernameMessage && (
                     <p
-                      className={`text-sm ${
-                        usernameMessage === "Username is available"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
+                      className={`text-sm ${usernameMessage === "Username is available"
+                        ? "text-green-500"
+                        : "text-red-500"
+                        }`}
                     >
                       {usernameMessage}
                     </p>
@@ -175,7 +172,7 @@ export default function SignUpForm() {
         <div className="text-center mt-4">
           <div>
             Already a member?{" "}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
+            <Link href="/sign-in" className="text-gray-700 hover:text-gray-900 underline">
               Sign in
             </Link>
           </div>

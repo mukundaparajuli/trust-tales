@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
 export async function GET(req: Request) {
   try {
@@ -20,16 +20,15 @@ export async function GET(req: Request) {
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-    console.log(text);
 
     const messageArray = text.split("||");
-    console.log(messageArray);
     return Response.json({
       messageSuggestion: messageArray,
     });
   } catch (error) {
-    Response.json({
+    return Response.json({
+      success: false,
       message: "Error generating messages",
-    });
+    }, { status: 500 });
   }
 }

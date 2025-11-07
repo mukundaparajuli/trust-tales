@@ -20,7 +20,7 @@ const TempThree: React.FC<TempThreeProps> = ({ name, message, project, photo, ra
             const svgContent = svgRef.current.outerHTML;
             navigator.clipboard.writeText(svgContent)
                 .then(() => alert("SVG template copied!"))
-                .catch(err => console.error("Error copying SVG template:", err));
+                .catch(err => { });
         }
     };
 
@@ -39,7 +39,7 @@ const TempThree: React.FC<TempThreeProps> = ({ name, message, project, photo, ra
                         top: "60px",
                         right: "10px",
                         padding: "10px 20px",
-                        backgroundColor: "#6366F1",
+                        backgroundColor: "#374151",
                         color: "white",
                         border: "none",
                         borderRadius: "5px",
@@ -70,7 +70,7 @@ const TempThree: React.FC<TempThreeProps> = ({ name, message, project, photo, ra
 
                 {/* Quote Text */}
                 <foreignObject x="40" y="40" width="220" height="160">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style={{ fontFamily: 'Arial', fontSize: '14px', color: '#374151', lineHeight: 1.6, textAlign: 'justify' }}>
+                    <div style={{ fontFamily: 'Arial', fontSize: '14px', color: '#374151', lineHeight: 1.6, textAlign: 'justify' }}>
                         {message}
                     </div>
                 </foreignObject>

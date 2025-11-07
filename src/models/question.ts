@@ -1,5 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
-import Message from "./messages";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 // Define Question interface
 export interface Question extends Document {
@@ -7,7 +6,7 @@ export interface Question extends Document {
     createdAt: Date;
     uuid: string;
     user: mongoose.Schema.Types.ObjectId;
-    messages: [mongoose.Schema.Types.ObjectId];
+    messages: mongoose.Types.ObjectId[];
 }
 
 // Question Schema
@@ -19,11 +18,12 @@ const questionSchema: Schema<Question> = new Schema({
     createdAt: {
         type: Date,
         required: true,
-        default: Date.now(),
+        default: Date.now,
     },
     uuid: {
         type: String,
         required: true,
+        unique: true,
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -36,6 +36,6 @@ const questionSchema: Schema<Question> = new Schema({
     }]
 });
 
-const questionModel = mongoose.models.Question || mongoose.model<Question>("Question", questionSchema);
+const QuestionModel: Model<Question> = mongoose.models.Question || mongoose.model<Question>("Question", questionSchema);
 
-export default questionModel;
+export default QuestionModel;

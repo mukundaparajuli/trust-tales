@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface Message extends Document {
     message: string;
@@ -12,7 +12,7 @@ export interface Message extends Document {
 const messageSchema: Schema<Message> = new Schema({
     name: {
         type: String,
-        required: true,
+        required: false, // Made optional for anonymous messages
     },
     message: {
         type: String,
@@ -20,24 +20,24 @@ const messageSchema: Schema<Message> = new Schema({
     },
     project: {
         type: String,
-        required: true,
+        required: false, // Made optional for anonymous messages
     },
     photo: {
         type: String,
-        required: true,
+        required: false, // Made optional for anonymous messages
     },
     rating: {
         type: Number,
-        required: true,
+        required: false, // Made optional for anonymous messages
+        default: 0,
     },
     createdAt: {
         type: Date,
         required: true,
-        default: Date.now(),
+        default: Date.now,
     },
 });
 
+const MessageModel: Model<Message> = mongoose.models.Message || mongoose.model<Message>("Message", messageSchema);
 
-const messageModel = mongoose.models.Message || mongoose.model<Message>("Message", messageSchema);
-
-export default messageModel;
+export default MessageModel;

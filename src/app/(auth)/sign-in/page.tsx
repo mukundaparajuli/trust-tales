@@ -105,7 +105,7 @@ export default function SignInForm() {
         <div className="text-center mt-4">
           <div>
             New Here?{" "}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800">
+            <Link href="/sign-up" className="text-gray-700 hover:text-gray-900 underline">
               Sign Up
             </Link>
           </div>

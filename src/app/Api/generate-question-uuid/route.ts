@@ -1,23 +1,23 @@
 // /pages/api/post-question.ts
 
 import { v4 as uuidv4 } from "uuid";
-import questionModel, { Question } from "@/models/question";
+import QuestionModel, { Question } from "@/models/question";
 import { auth } from "../auth/[...nextauth]/options";
-import { User } from "@/models/user";
+import dbConnect from "@/lib/dbConnection";
 
 export async function POST(req: Request, res: Response) {
 
+    await dbConnect();  // Add database connection
 
     const session = await auth();
-    const user: User = session?.user as User;
-    if (!session || !session.user) {
+    const user = session?.user;
+    if (!session || !session.user || !user?._id) {
         return Response.json(
             { success: false, message: "Not authenticated" },
             { status: 401 }
         );
     }
 
-    console.log(user);
     const { question } = await req.json();
 
     if (!question) {
@@ -34,21 +34,18 @@ export async function POST(req: Request, res: Response) {
         // Generate a UUID for the question
         const questionUUID = uuidv4();
 
-        console.log("question uuid: ", questionUUID);
 
         // Create a new question document
-        const newQuestion: Question = new questionModel({
+        const newQuestion: Question = new QuestionModel({
             question: question,
             uuid: questionUUID,
-            user: user,
+            user: user._id,  // Use user._id instead of entire user object
         });
 
-        console.log("new question with user is: ", newQuestion);
 
         // Save the question to the database
         await newQuestion.save();
 
-        console.log("new question has been saved!");
 
         return Response.json(
             {
@@ -60,7 +57,6 @@ export async function POST(req: Request, res: Response) {
         );
 
     } catch (error) {
-        console.error("Error saving question:", error);
         return Response.json(
             {
                 success: false,

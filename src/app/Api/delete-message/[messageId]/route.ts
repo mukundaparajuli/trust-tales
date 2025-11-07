@@ -4,6 +4,8 @@ import dbConnect from "@/lib/dbConnection";
 import mongoose from "mongoose";
 import userModel from "@/models/user";
 
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(
   request: Request,
   { params }: { params: { messageId: string } }
@@ -36,7 +38,6 @@ export async function DELETE(
       { status: 201 }
     );
   } catch (error) {
-    console.log("Error deleting message: ", error);
     return Response.json(
       { success: false, message: "Error deleting message" },
       { status: 500 }

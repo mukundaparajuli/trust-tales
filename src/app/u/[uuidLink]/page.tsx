@@ -5,6 +5,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
 import { messageSchema } from "@/schema/messageSchema";
@@ -17,15 +18,14 @@ import { z } from "zod";
 import { ApiResponse } from "../../../../types/ApiResponse";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Star } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { headers } from "next/headers";
+import { Loader2, Sparkles, Send, MessageCircle, Lock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MessageComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   const params = useParams();
   const { uuidLink } = params;
@@ -50,11 +50,15 @@ const MessageComponent = () => {
     try {
       const response = await axios.get("/api/suggest-messages/");
       setSuggestedMessages(response.data.messageSuggestion);
+      toast({
+        title: "Suggestions Generated",
+        description: "Click on any suggestion to use it",
+      });
     } catch (error) {
-      console.error("Error fetching suggested messages:", error);
       toast({
         title: "Error",
         description: "Failed to fetch suggested messages.",
+        variant: "destructive",
       });
     } finally {
       setIsLoadingSuggestions(false);
@@ -62,88 +66,71 @@ const MessageComponent = () => {
   };
 
   const handleGetQuestionInfo = async () => {
-    console.log("getting the question info...");
     try {
       const response = await axios.post("/api/get-question-from-uuid", {
         uuid: uuidLink,
       });
-      console.log(response.data);
       const question = response.data.question;
       setQuestion(question.question);
-      const userKoId = response.data.question.user;
-      setUserId(userKoId);
-
+      setUserId(response.data.question.user);
       setQuestionId(question._id);
-      console.log("QUESTION KO ID:", question._id);
-      console.log("user ko id: ", userKoId);
     } catch (error) {
-      console.log("Error occurred while fetching the question information : ", error);
+      toast({
+        title: "Error",
+        description: "Failed to load question. This link may be invalid.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSubmit = async (data: z.infer<typeof messageSchema>) => {
     setIsSubmitting(true);
-    console.log("trying to submit");
 
-    if (!userId) {
+    if (!userId || !questionId) {
       toast({
         title: "Error",
-        description: "User ID is not available. Please try again.",
+        description: "Question information is missing. Please refresh and try again.",
+        variant: "destructive",
       });
       setIsSubmitting(false);
       return;
     }
-    if (!questionId) {
-      toast({
-        title: "Error",
-        description: "Question ID is not available. Please try again.",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-
 
     try {
-      console.log("fetching...");
-
-
       const formData = new FormData();
       formData.append("userId", userId);
       formData.append("message", data.message);
-      formData.append("name", data.name);
-      formData.append("project", data.project);
-      formData.append("photo", data.photo);
-      formData.append("rating", data.rating);
+      formData.append("name", "");
+      formData.append("project", "");
+      formData.append("rating", "0");
       formData.append("questionId", questionId);
 
-      const response = await axios.post<ApiResponse>("/api/send-messages/", formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          }
-        });
-
-      console.log("fetched...");
-      console.log(response.data);
-      toast({
-        title: "Success",
-        description: response.data.message,
+      const response = await axios.post<ApiResponse>("/api/send-messages/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
       });
+
+      toast({
+        title: "Response Sent!",
+        description: "Your anonymous response has been delivered.",
+      });
+
+      setSubmitted(true);
       form.reset();
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: "Error",
         description:
-          axiosError.response?.data.message || "Error while sending the data",
+          axiosError.response?.data.message || "Failed to send response. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handler to set the clicked suggested message into the textarea
   const handleSuggestedMessageClick = (message: string) => {
     form.setValue("message", message);
   };
@@ -152,134 +139,161 @@ const MessageComponent = () => {
     handleGetQuestionInfo();
   }, []);
 
-  return (
-    <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
-      <h1 className="font-bold text-4xl mb-10 text-center">{question}</h1>
-      <div className="my-8">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6 w-full"
-          >
-            <FormField
-              name="message"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="message">Message</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Type your message here."
-                      className="resize-none border-black border-2 w-full"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="name"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="name">Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Full Name"
-                      {...field} // Spread the field props
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="project"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="project">Project</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Project Name"
-                      {...field} // Spread the field props
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="photo"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="photo">Upload Photo</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => field.onChange(e.target.files?.[0])} // Handle file upload
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="rating"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="rating">Rating</FormLabel>
-                  <FormControl>
-                    <div className="flex space-x-2">
-                      {[1, 2, 3, 4, 5].map((value) => (
-                        <Star
-                          key={value}
-                          className={`cursor-pointer ${field.value >= value ? "text-yellow-500" : "text-gray-300"}`}
-                          onClick={() => field.onChange(value)}
-                        />
-                      ))}
-                    </div>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div>
-              {isSubmitting ? (
-                <Button disabled>
-                  <Loader2 className="animate-spin" />
-                </Button>
-              ) : (
-                <Button type="submit">Send message</Button>
-              )}
-            </div>
-          </form>
-        </Form>
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full border border-gray-200">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-medium text-gray-900">Thank You</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Your anonymous response has been sent successfully
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600 text-sm">
+              Your honest feedback has been delivered anonymously. The recipient will never know who sent this.
+            </p>
+            <Button
+              onClick={() => setSubmitted(false)}
+              variant="outline"
+              className="mt-4 border-gray-300"
+            >
+              Send Another Response
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-      <Separator />
-      <div className="mt-6">
-        <Button onClick={generateMessages} disabled={isLoadingSuggestions}>
-          {isLoadingSuggestions ? "Loading..." : "Suggest Messages"}
-        </Button>
-        <div className="mt-4">
-          {isLoadingSuggestions ? (
-            <p>Loading suggestions...</p>
-          ) : (
-            suggestedMessages.length > 0 && (
-              <div className="space-y-2">
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="container mx-auto max-w-3xl">
+        <Card className="mb-8 border-gray-200 bg-white">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl md:text-3xl font-medium mb-2 text-gray-900">
+              {question || "Loading..."}
+            </CardTitle>
+            <CardDescription className="text-sm flex items-center justify-center gap-2">
+              <Lock className="h-4 w-4" />
+              Your response is 100% anonymous
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card className="border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium text-gray-900">Your Anonymous Response</CardTitle>
+            <CardDescription className="text-sm">
+              Share your honest thoughts without revealing your identity
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  name="message"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">Your Message</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Write your honest response here..."
+                          className="resize-none min-h-32 text-base border-gray-300 focus:border-gray-900 focus:ring-gray-900"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gray-900 hover:bg-gray-800"
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Response
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6 border-gray-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg font-medium text-gray-900">
+              Need Inspiration?
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Let AI suggest some response ideas (you can edit them)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={generateMessages}
+              disabled={isLoadingSuggestions}
+              variant="outline"
+              className="w-full border-gray-300"
+            >
+              {isLoadingSuggestions ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Ideas...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Get AI Suggestions
+                </>
+              )}
+            </Button>
+
+            {suggestedMessages.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  Click any suggestion to use it:
+                </p>
                 {suggestedMessages.map((message, index) => (
                   <div
                     key={index}
                     onClick={() => handleSuggestedMessageClick(message)}
-                    className="border p-2 my-2 rounded cursor-pointer hover:bg-gray-200 transition"
+                    className="p-4 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-all"
                   >
-                    {message}
+                    <p className="text-sm text-gray-700">{message}</p>
                   </div>
                 ))}
               </div>
-            )
-          )}
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="mt-8 p-4 bg-gray-100 border border-gray-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <Lock className="h-5 w-5 text-gray-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1 text-sm">Your Privacy is Protected</h4>
+              <p className="text-sm text-gray-600">
+                Your response is completely anonymous. No personal information is collected or tracked.
+                The recipient will never know who sent this message.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

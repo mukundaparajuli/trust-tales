@@ -7,10 +7,8 @@ export async function POST(request: Request) {
     const { username, code } = await request.json();
 
     const decodedUsername = decodeURIComponent(username);
-    console.log(username, decodedUsername);
 
     const user = await userModel.findOne({ username });
-    console.log(user);
     if (!user) {
       return Response.json({
         success: false,
@@ -19,7 +17,6 @@ export async function POST(request: Request) {
     }
     const isCodeValid = user.verifyCode === code;
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-    console.log(isCodeValid, isCodeNotExpired);
     if (isCodeValid && isCodeNotExpired) {
       user.isVerified = true;
       user.save();
@@ -42,7 +39,6 @@ export async function POST(request: Request) {
       });
     }
   } catch (error) {
-    console.log("Error verifying user:", error);
     return Response.json({
       success: false,
       message: "username verification failed",

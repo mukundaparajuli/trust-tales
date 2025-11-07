@@ -1,39 +1,45 @@
 import mongoose from "mongoose";
 import { auth } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnection";
-import questionModel from "@/models/question";
+// Import models to ensure they are registered
+import MessageModel from "@/models/messages";
+import QuestionModel from "@/models/question";
 
 export async function GET(request: Request) {
-  // Connect to the database
-  await dbConnect();
-
-  // Get the authenticated session
-  const session = await auth();
-  const user = session?.user;
-
-  if (!session || !user) {
-    return new Response(
-      JSON.stringify({ success: false, message: "Not authenticated" }),
-      { status: 401, headers: { "Content-Type": "application/json" } }
-    );
-  }
-
-  // Get the user's ObjectId
-  const userId = new mongoose.Types.ObjectId(user._id);
-
   try {
+    // Connect to the database
+    await dbConnect();
+
+    // Get the authenticated session
+    const session = await auth();
+    const user = session?.user; if (!session || !user) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Not authenticated" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate user ID exists
+    if (!user._id) {
+      return new Response(
+        JSON.stringify({ success: false, message: "User ID not found in session" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get the user's ObjectId
+    const userId = new mongoose.Types.ObjectId(user._id);
+
     // Fetch all questions for the authenticated user, including messages
-    const userQuestions = await questionModel
+    const userQuestions = await QuestionModel
       .find({ user: userId })
       .populate("messages")
-    // .exec();
+      .exec();
 
-    console.log(userQuestions);
-
-    // If no questions are found
+    // If no questions are found, return empty array (not an error)
     if (!userQuestions || userQuestions.length === 0) {
       return new Response(
-        JSON.stringify({ success: false, message: "No questions found for this user" }),
+        JSON.stringify({ success: true, questions: [], message: "No questions found yet" }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -42,14 +48,17 @@ export async function GET(request: Request) {
     return new Response(
       JSON.stringify({
         success: true,
-        questions: userQuestions,  // Send back the questions array
+        questions: userQuestions,
       }),
-      { status: 201, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.log(error);
     return new Response(
-      JSON.stringify({ success: false, message: "An error occurred" }),
+      JSON.stringify({
+        success: false,
+        message: "An error occurred while fetching messages",
+        error: error instanceof Error ? error.message : "Unknown error"
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

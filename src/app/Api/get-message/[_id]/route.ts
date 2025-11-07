@@ -1,5 +1,5 @@
 import dbConnect from '@/lib/dbConnection';
-import messageModel from '@/models/messages';
+import MessageModel from '@/models/messages';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { _id: string } }) {
@@ -8,8 +8,7 @@ export async function GET(req: NextRequest, { params }: { params: { _id: string 
 
     try {
         if (_id) {
-            const message = await messageModel.findById(_id);
-            console.log(message)
+            const message = await MessageModel.findById(_id);
             if (!message) {
                 return new Response(
                     JSON.stringify({ success: false, message: "Message not found" }),
@@ -23,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: { _id: string 
             );
         }
 
-        const messages = await messageModel
+        const messages = await MessageModel
             .find({})
             .sort({ createdAt: -1 })
 
@@ -40,7 +39,7 @@ export async function GET(req: NextRequest, { params }: { params: { _id: string 
             { status: 200 }
         );
     } catch (error) {
-        console.log(error);
+        console.log("Error fetching message(s):", error);
         return new Response(
             JSON.stringify({ success: false, message: "An error occurred" }),
             { status: 500 }

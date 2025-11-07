@@ -12,14 +12,11 @@ export async function GET(request: Request) {
   //   localhost:3000/api/cuu?username=mukunda?email=abc@abc.com
   try {
     const { searchParams } = new URL(request.url);
-    const queryParam = {
+    const queryParams = {
       username: searchParams.get("username"),
     };
 
-    console.log(queryParam);
-    // validate with zod
-    const result = usernameQuerySchema.safeParse(queryParam);
-    console.log(result);
+    const result = usernameQuerySchema.safeParse(queryParams);
     if (!result.success) {
       const usernameErrors = result.error.format().username?._errors || [];
       return Response.json(
@@ -49,7 +46,6 @@ export async function GET(request: Request) {
       message: "Username is available",
     });
   } catch (error) {
-    console.log("Error checking username: ", error);
     return Response.json(
       {
         success: false,

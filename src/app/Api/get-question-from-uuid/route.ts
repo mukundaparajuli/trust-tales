@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnection";
-import questionModel from "@/models/question";
+import QuestionModel from "@/models/question";
 import userModel from "@/models/user";
 
 export async function POST(req: Request, res: Response) {
@@ -9,11 +9,19 @@ export async function POST(req: Request, res: Response) {
     const { uuid } = await req.json();
     try {
 
-        const question = await questionModel.findOne({ uuid });
-        console.log("question info", question);
+        const question = await QuestionModel.findOne({ uuid });
+
+        if (!question) {
+            return Response.json(
+                {
+                    success: false,
+                    message: "Question not found. This link may be invalid.",
+                },
+                { status: 404 }
+            );
+        }
 
         const user = await userModel.findById(question?.user)
-        console.log(user);
         return Response.json(
             {
                 success: true,
@@ -23,15 +31,15 @@ export async function POST(req: Request, res: Response) {
             { status: 201 }
         )
     } catch (error) {
-        console.log("error occured while sending error");
 
         return Response.json(
             {
                 success: false,
-                message: "Question could not be sent",
+                message: "Question could not be fetched",
+                error: error instanceof Error ? error.message : "Unknown error"
             },
             {
-                status: 200
+                status: 500
             }
         )
     }

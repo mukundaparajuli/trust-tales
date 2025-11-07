@@ -26,11 +26,9 @@ const VerifyOTP = () => {
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
   });
-  console.log(params.username);
 
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
     try {
-      console.log(data.code);
       const response = await axios.post("/api/verify-code", {
         username: params.username,
         code: data.code,
@@ -41,7 +39,6 @@ const VerifyOTP = () => {
       });
       router.replace("/sign-in");
     } catch (error) {
-      console.log("Error during sign-up:", error);
 
       const axiosError = error as AxiosError<ApiResponse>;
 

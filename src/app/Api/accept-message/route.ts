@@ -18,14 +18,12 @@ export async function POST(request: Request) {
 
   const userId = user._id;
   const { acceptMessages } = await request.json();
-  console.log("AcceptMessages: backend  ", acceptMessages);
   try {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { isAcceptingMessages: acceptMessages },
       { new: true }
     );
-    console.log(updatedUser);
     if (!updatedUser) {
       return Response.json(
         {
@@ -44,7 +42,6 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating message acceptance status:", error);
     return Response.json(
       { success: false, message: "Error updating message acceptance status" },
       { status: 500 }
@@ -89,7 +86,6 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error retrieving message acceptance status:", error);
     return Response.json(
       { success: false, message: "Error retrieving message acceptance status" },
       { status: 500 }

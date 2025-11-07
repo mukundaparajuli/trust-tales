@@ -1,34 +1,21 @@
 'use client';
-import TempFour from "@/components/templates/TempFour"
-import TempOne from "@/components/templates/TempOne"
-import TempThree from "@/components/templates/TempThree"
-import TempTwo from "@/components/templates/TempTwo"
-import dbConnect from "@/lib/dbConnection";
-import { useParams } from "next/navigation";
 
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Page() {
+export default function Page() {
+    const router = useRouter();
 
-    const params = useParams();
-    console.log(params);
-    // const messages = async () => {
-    //     const response = await fetch(`/api/get-message/`)
-    // }
+    useEffect(() => {
+        router.push('/dashboard');
+    }, [router]);
 
-    const prop = {
-        name: 'Mukunda',
-        project: "Mern Blog",
-        message: "It was great working with you Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptatibus tempore ea quibusdam quo nisi totam recusandae, beatae quaerat, ratione saepe expedita? Culpa ullam beatae perferendis autem? Autem quasi facere exercitationem.",
-        image: "https://media.licdn.com/dms/image/v2/D5603AQGUk4XJ1YijyQ/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1718227660402?e=1733961600&v=beta&t=0eJfMylR3Q09MSNRDgr-CNDcicfz_oQUXF8mQogUVTI",
-        rating: 5
-    }
     return (
-        <div className="flex m-0 p-0">
-            <TempOne {...prop} />
-            <TempTwo {...prop} />
-            <TempThree {...prop} />
-            <TempFour {...prop} />
-
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Redirecting...</p>
+            </div>
         </div>
     )
 }
