@@ -7,6 +7,7 @@ import { join } from "path";
 import MessageModel from "@/models/messages";
 import mongoose from "mongoose";
 
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   await dbConnect();

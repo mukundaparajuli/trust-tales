@@ -2,6 +2,8 @@ import dbConnect from '@/lib/dbConnection';
 import MessageModel from '@/models/messages';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { _id: string } }) {
     await dbConnect();
     const { _id } = params;

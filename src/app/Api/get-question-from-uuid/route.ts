@@ -2,6 +2,8 @@ import dbConnect from "@/lib/dbConnection";
 import QuestionModel from "@/models/question";
 import userModel from "@/models/user";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request, res: Response) {
 
     await dbConnect();

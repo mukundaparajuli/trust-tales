@@ -1,6 +1,8 @@
 import dbConnect from "@/lib/dbConnection";
 import userModel from "@/models/user";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   await dbConnect();
   try {
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
         message: "code verified successfully",
       });
 
-      
+
     } else if (isCodeNotExpired) {
       return Response.json({
         success: false,

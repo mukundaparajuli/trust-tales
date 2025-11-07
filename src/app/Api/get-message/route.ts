@@ -5,6 +5,8 @@ import dbConnect from "@/lib/dbConnection";
 import MessageModel from "@/models/messages";
 import QuestionModel from "@/models/question";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // Connect to the database

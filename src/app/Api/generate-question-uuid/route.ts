@@ -5,6 +5,8 @@ import QuestionModel, { Question } from "@/models/question";
 import { auth } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnection";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request, res: Response) {
 
     await dbConnect();  // Add database connection
