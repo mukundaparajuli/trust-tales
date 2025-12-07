@@ -69,7 +69,7 @@ export default function QuestionResponsesPage() {
         return null;
     }
 
-    const messages = (question?.messages || []) as Message[];
+    const messages = (question?.messages || []) as any;
 
     return (
         <div className="min-h-screen bg-white py-12">
