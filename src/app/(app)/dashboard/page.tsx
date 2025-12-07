@@ -9,7 +9,7 @@ import { Message } from "@/models/messages";
 import { ApiResponse } from "../../../../types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
-import { Loader2, RefreshCcw, Copy, MessageSquare, ExternalLink } from "lucide-react";
+import { Loader2, RefreshCcw, Copy, MessageSquare, ExternalLink, Eye } from "lucide-react";
 import { User } from "next-auth";
 import { useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useState } from "react";
@@ -319,9 +319,22 @@ function UserDashboard() {
                       <h3 className="font-medium text-base text-gray-900 flex-1">
                         {item.question}
                       </h3>
-                      <span className="text-xs text-gray-400 ml-4 whitespace-nowrap">
-                        {item.messages?.length || 0} {item.messages?.length === 1 ? 'response' : 'responses'}
-                      </span>
+                      <div className="flex items-center gap-2 ml-4">
+                        <span className="text-xs text-gray-400 whitespace-nowrap">
+                          {item.messages?.length || 0} {item.messages?.length === 1 ? 'response' : 'responses'}
+                        </span>
+                        {item.messages && item.messages.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push(`/questions/${item._id}`)}
+                            className="border-gray-300 text-gray-600 hover:text-gray-900 whitespace-nowrap"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View All
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Responses */}
