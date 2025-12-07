@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
 import * as z from "zod";
@@ -29,6 +29,14 @@ export default function SignInForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const form = useForm<z.infer<typeof signInValidation>>({
     resolver: zodResolver(signInValidation),
@@ -45,15 +53,28 @@ export default function SignInForm() {
       identifier: data.identifier,
       password: data.password,
     });
+
+    if (!isMountedRef.current) return;
+
     if (result?.error) {
       setIsSubmitting(false);
       toast({
         title: "Login Failed",
         description: "Invalid Credentials",
+        variant: "destructive",
       });
     }
     if (result?.url) {
-      router.replace("/dashboard");
+      toast({
+        title: "Success",
+        description: "Signed in successfully",
+      });
+      // Delay navigation to allow toast to show and prevent DOM errors
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          router.replace("/dashboard");
+        }
+      }, 1000);
     }
   };
 

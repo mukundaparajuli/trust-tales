@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
 import * as z from "zod";
@@ -32,6 +32,14 @@ export default function SignUpForm() {
 
   const router = useRouter();
   const { toast } = useToast();
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const form = useForm<z.infer<typeof signUpValidation>>({
     resolver: zodResolver(signUpValidation),
@@ -70,15 +78,23 @@ export default function SignUpForm() {
     try {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
 
+      if (!isMountedRef.current) return;
+
       toast({
         title: "Success",
         description: response.data.message,
       });
 
-      router.replace(`/verify/${username}`);
+      // Delay navigation to allow toast to show and prevent DOM errors
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          router.replace(`/verify/${username}`);
+        }
+      }, 1000);
 
       setIsSubmitting(false);
     } catch (error) {
+      if (!isMountedRef.current) return;
 
       const axiosError = error as AxiosError<ApiResponse>;
 

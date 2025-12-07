@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { Question } from "@/models/question";
@@ -11,50 +11,84 @@ import { ArrowLeft, MessageSquare, Loader2, Star } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ApiResponse } from "../../../../../types/ApiResponse";
 
+// Type for Question with populated messages
+interface PopulatedQuestion extends Omit<Question, 'messages'> {
+    messages: Message[];
+}
+
 export default function QuestionResponsesPage() {
-    const [question, setQuestion] = useState<Question | null>(null);
+    const [question, setQuestion] = useState<PopulatedQuestion | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
     const router = useRouter();
     const params = useParams();
     const { toast } = useToast();
+    const isMountedRef = useRef(true);
 
     const questionId = params.questionId as string;
 
     useEffect(() => {
+        isMountedRef.current = true;
+
         const fetchQuestionResponses = async () => {
             try {
+                if (!isMountedRef.current) return;
+
                 setIsLoading(true);
                 const response = await axios.get<ApiResponse>(
                     `/api/get-question-responses/${questionId}`
                 );
 
+                if (!isMountedRef.current) return;
+
                 if (response.data.success && response.data.question) {
-                    setQuestion(response.data.question);
+                    // The API populates messages, so we can safely cast to PopulatedQuestion
+                    setQuestion(response.data.question as unknown as PopulatedQuestion);
                 } else {
+                    setError(true);
                     toast({
                         title: "Error",
                         description: response.data.message || "Failed to load question",
                         variant: "destructive",
                     });
-                    router.push("/dashboard");
+                    // Delay navigation to allow toast to show
+                    setTimeout(() => {
+                        if (isMountedRef.current) {
+                            router.push("/dashboard");
+                        }
+                    }, 1000);
                 }
             } catch (error) {
+                if (!isMountedRef.current) return;
+
                 const axiosError = error as AxiosError<ApiResponse>;
+                setError(true);
                 toast({
                     title: "Error",
                     description:
                         axiosError.response?.data.message || "Failed to load question responses",
                     variant: "destructive",
                 });
-                router.push("/dashboard");
+                // Delay navigation to allow toast to show
+                setTimeout(() => {
+                    if (isMountedRef.current) {
+                        router.push("/dashboard");
+                    }
+                }, 1000);
             } finally {
-                setIsLoading(false);
+                if (isMountedRef.current) {
+                    setIsLoading(false);
+                }
             }
         };
 
         if (questionId) {
             fetchQuestionResponses();
         }
+
+        return () => {
+            isMountedRef.current = false;
+        };
     }, [questionId, router, toast]);
 
     if (isLoading) {
@@ -69,7 +103,7 @@ export default function QuestionResponsesPage() {
         return null;
     }
 
-    const messages = (question?.messages || []) as any;
+    const messages = question.messages || [];
 
     return (
         <div className="min-h-screen bg-white py-12">
@@ -112,7 +146,7 @@ export default function QuestionResponsesPage() {
                     <CardContent>
                         {messages.length > 0 ? (
                             <div className="space-y-4">
-                                {messages.map((message, index) => (
+                                {messages.map((message: Message, index: number) => (
                                     <Card
                                         key={String(message._id)}
                                         className="border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"

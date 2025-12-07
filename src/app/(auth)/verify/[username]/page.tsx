@@ -18,14 +18,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
+import { useRef, useEffect } from "react";
 
 const VerifyOTP = () => {
   const router = useRouter();
   const params = useParams<{ username: string }>();
   const { toast } = useToast();
+  const isMountedRef = useRef(true);
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
   });
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
     try {
@@ -33,12 +42,22 @@ const VerifyOTP = () => {
         username: params.username,
         code: data.code,
       });
+
+      if (!isMountedRef.current) return;
+
       toast({
         title: "Success",
         description: response.data.message,
       });
-      router.replace("/sign-in");
+
+      // Delay navigation to allow toast to show and prevent DOM errors
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          router.replace("/sign-in");
+        }
+      }, 1000);
     } catch (error) {
+      if (!isMountedRef.current) return;
 
       const axiosError = error as AxiosError<ApiResponse>;
 
